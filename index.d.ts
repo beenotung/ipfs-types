@@ -38,12 +38,12 @@ declare class IPFS extends EventEmitter {
     libp2p: any;
     swarm: IPFS.SwarmAPI;
     files: IPFS.FilesAPI;
-    bitswap: any;
+    bitswap: IPFS.Bitswap;
 
     ping(callback: (error: Error) => void): void;
     ping(): Promise<void>;
 
-    pubsub: any;
+    pubsub: IPFS.Pubsub;
 
     on(event: string, callback: () => void): this;
     on(event: 'error', callback: (error: { message: any }) => void): this;
@@ -75,7 +75,7 @@ declare namespace IPFS {
 
     export interface Types {
         Buffer: any;
-        PeerId: any;
+        PeerId: string | any;
         PeerInfo: any;
         multiaddr: Multiaddr;
         multihash: Multihash;
@@ -282,6 +282,60 @@ declare namespace IPFS {
         tree(cid: string | CID, options: any): Promise<any>;
         tree(cid: string | CID, callback: Callback<any>): void;
         tree(cid: string | CID): Promise<any>;
+    }
+
+    export interface Pubsub {
+        subscribe(topic, handler, options: any, callback: Callback<any>): void;
+        subscribe(topic, handler, options: any): Promise<void>;
+
+        unsubscribe (topic, handler, callback: Callback<void>): void;
+        unsubscribe (topic, handler ): Promise<void>;
+
+        publish (topic, data, callback: Callback<any>): void;
+        publish (topic, data): Promise<any>;
+
+        ls(callback: Callback<any>): void;
+        ls(): Promise<any>;
+
+        peers (topic, callback: Callback<any>): void;
+        peers (topic ): Promise<any>;
+
+        setMaxListeners (n: number)
+    }
+
+    export interface WantListItem {
+        '/': string
+    }
+    export interface WantList {
+        Keys: WantListItem[]
+    }
+
+    /* class object */
+    export type Big = any;
+    export interface Stat {
+        provideBufLen: number
+        blocksReceived: Big
+        wantlist: WantListItem[]
+        peers: string[]
+        dupBlksReceived: Big;
+        dupDataReceived: Big
+        dataReceived: Big
+        blocksSent: Big
+        dataSent: Big
+    }
+
+    export type KeyType = string | Buffer | CID | any;
+    export interface Bitswap {
+        wantlist(peerId: string, callback: Callback<WantList>): void;
+        wantlist(peerId: string): Promise<WantList>;
+        wantlist(callback: Callback<WantList>): void;
+        wantlist(): Promise<WantList>;
+
+        stat(callback:Callback<Stat>): void;
+        stat(): Promise<Stat>;
+
+        unwant(keys: KeyType|KeyType[], callback: Callback<any>): void;
+        unwant(keys: KeyType|KeyType[]): Promise<any>;
     }
 
     export function createNode(options: Options): IPFS;
